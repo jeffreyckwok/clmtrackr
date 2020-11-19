@@ -14,7 +14,7 @@
 				max-width: 1150px;
 			}
 
-			#overlay {
+			canvas {
 				position: absolute;
 				top: 0px;
 				left: 0px;
@@ -93,6 +93,7 @@
 		<script src="./js/libs/utils.js"></script>
 		<script src="../build/clmtrackr.js"></script>
 		<script src="./js/libs/Stats.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.1.3/pixi.min.js"></script>
 		<div id="content">
 			<h2>Facetracking example</h2>
 			<div id="container">
@@ -131,6 +132,18 @@
 				var vid_height = vid.height;
 				var overlay = document.getElementById('overlay');
 				var overlayCC = overlay.getContext('2d');
+
+				const app = new PIXI.Application({
+    				width: vid_width, height: vid_height, transparent: true, sharedTicker: true
+				});
+
+				document.getElementById('container').replaceChild(app.view, overlay);
+
+				const container = new PIXI.Container();
+
+				app.stage.addChild(container);
+
+
 
 				/*********** Setup of video/webcam and checking for webGL support *********/
 
@@ -225,12 +238,57 @@
 					drawLoop();
 				}
 
+				function drawLips() {
+					var positions = ctrack.getCurrentPosition();
+
+					const graphics = new PIXI.Graphics();
+					graphics.beginFill(0xFF0000);
+
+					graphics.drawPolygon([
+						positions[44][0], positions[44][1],
+						positions[45][0], positions[45][1],
+						positions[46][0], positions[46][1],
+						positions[47][0], positions[47][1],
+						positions[48][0], positions[48][1],
+						positions[49][0], positions[49][1],
+						positions[50][0], positions[50][1],
+						positions[59][0], positions[59][1],
+						positions[60][0], positions[60][1],
+						positions[61][0], positions[61][1],
+						positions[44][0], positions[44][1]
+					]);
+
+					graphics.endFill();
+
+					graphics.beginFill(0xFF0000);
+
+					graphics.drawPolygon([
+						positions[44][0], positions[44][1],
+						positions[56][0], positions[56][1],
+						positions[57][0], positions[57][1],
+						positions[58][0], positions[58][1],
+						positions[50][0], positions[50][1],
+						positions[51][0], positions[51][1],
+						positions[52][0], positions[52][1],
+						positions[53][0], positions[53][1],
+						positions[54][0], positions[54][1],
+						positions[55][0], positions[55][1],
+						positions[44][0], positions[44][1]
+					]);
+
+					graphics.endFill();
+
+					app.stage.addChild(graphics);
+
+					setTimeOut(function() { app.stage.removeChild(graphics)}, 1000);
+				}
+
 				function drawLoop() {
 					requestAnimFrame(drawLoop);
 					overlayCC.clearRect(0, 0, vid_width, vid_height);
 					//psrElement.innerHTML = "score :" + ctrack.getScore().toFixed(4);
 					if (ctrack.getCurrentPosition()) {
-						ctrack.draw(overlay);
+						drawLips();
 					}
 				}
 
